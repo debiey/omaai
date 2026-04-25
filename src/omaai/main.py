@@ -8,6 +8,7 @@ from omaai.commands.explain import explain
 from omaai.commands.fix import fix
 from omaai.commands.monitor import monitor
 from omaai.commands.teach import teach
+from omaai.commands.automate import automate
 
 console = Console()
 
@@ -19,10 +20,11 @@ def cli():
 
     \b
     Commands:
-      explain   Explain a Linux command or error
-      fix       Suggest a fix for a broken command
-      monitor   Show system CPU, RAM, and disk stats
-      teach     Interactive Linux lessons and quizzes
+      explain    Explain a Linux command or error
+      fix        Suggest a fix for a broken command
+      monitor    Show system CPU, RAM, and disk stats
+      teach      Interactive Linux lessons and quizzes
+      automate   Generate and run automation scripts
     """
     pass
 
@@ -31,6 +33,7 @@ cli.add_command(explain)
 cli.add_command(fix)
 cli.add_command(monitor)
 cli.add_command(teach)
+cli.add_command(automate)
 
 
 if __name__ == "__main__":
