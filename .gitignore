@@ -1,0 +1,13 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.omaai/
+.env
+*.tar.gz
+.idea/
+.vscode/
