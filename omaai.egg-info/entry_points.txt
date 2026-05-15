@@ -1,0 +1,2 @@
+[console_scripts]
+oma = oma.cli:cli
