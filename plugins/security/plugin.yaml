@@ -1,0 +1,14 @@
+name: security
+version: "0.1.0"
+description: Audit system security, harden configs, check firewall and SSH
+author: OmaAI
+requires:
+  - ufw
+  - openssh-client
+commands:
+  - audit
+  - ports
+  - ssh
+  - firewall
+  - users
+  - explain
