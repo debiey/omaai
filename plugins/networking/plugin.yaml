@@ -1,0 +1,16 @@
+name: networking
+version: "0.1.0"
+description: Diagnose network issues, scan ports, check DNS, monitor connections
+author: OmaAI
+requires:
+  - net-tools
+  - iproute2
+commands:
+  - ports
+  - scan
+  - dns
+  - interfaces
+  - connections
+  - ping
+  - trace
+  - explain
