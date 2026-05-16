@@ -22,7 +22,7 @@ BANNER = """\
 @click.version_option("0.1.0", prog_name="OmaAI")
 @click.pass_context
 def cli(ctx):
-    """OmaAI — your AI-powered Linux developer platform."""
+    """OmaAI -- your AI-powered Linux developer platform."""
     if ctx.invoked_subcommand is None:
         console.print(BANNER)
         console.print(Panel(
@@ -36,6 +36,8 @@ def cli(ctx):
             "               Interactive Linux lessons\n"
             "  [bold green]oma build[/bold green] [dim]<project>[/dim]"
             "              Scaffold a full project\n"
+            "  [bold cyan]oma plugin[/bold cyan] [dim]list|install|remove[/dim]"
+            "     Manage plugins\n"
             "  [dim]oma config[/dim]"
             "                         View and change settings\n\n"
             "[dim]  Run [bold]oma <command> --help[/bold] for details.[/dim]",
@@ -60,10 +62,9 @@ def explain(query, from_stdin):
     elif query:
         text = " ".join(query)
     else:
-        console.print("[red]❌  Provide a query or pipe input with --stdin.[/red]")
+        console.print("[red]No query provided.[/red]")
         console.print('[dim]Example: oma explain "permission denied"[/dim]')
         return
-
     run_explain(text)
 
 
@@ -85,12 +86,11 @@ def fix(file, from_stdin, execute, save_path):
             content  = Path(file).read_text()
             filename = file
         except FileNotFoundError:
-            console.print(f"[red]❌  File not found: {file}[/red]")
+            console.print(f"[red]File not found: {file}[/red]")
             return
     else:
-        console.print("[red]❌  Provide a file or use --stdin.[/red]")
+        console.print("[red]Provide a file or use --stdin.[/red]")
         return
-
     run_fix(content, filename=filename, execute=execute, save_path=save_path)
 
 
@@ -99,7 +99,7 @@ def fix(file, from_stdin, execute, save_path):
 @click.option("--explain", "with_explain", is_flag=True)
 @click.option("--interval", "-i", default=None, type=int)
 def monitor(once, with_explain, interval):
-    """Live system monitor — CPU, memory, disk, services."""
+    """Live system monitor -- CPU, memory, disk, services."""
     from oma.modules.monitor import run_monitor_once, run_monitor_live, run_monitor_explain
     from oma.config import load_config
 
@@ -123,6 +123,20 @@ def teach(topic, level):
     """Interactive Linux and tech learning mode."""
     from oma.modules.teach import run_teach
     run_teach(" ".join(topic) if topic else "", level=level)
+
+
+@cli.command()
+@click.argument("project", nargs=-1, required=False)
+@click.option("--stack", "-s", default=None)
+def build(project, stack):
+    """Generate full project architecture, structure, and starter code."""
+    from oma.modules.build import run_build
+    project_str = " ".join(project) if project else ""
+    if not project_str:
+        console.print("[red]Describe what you want to build.[/red]")
+        console.print('[dim]Example: oma build "school exam system"[/dim]')
+        return
+    run_build(project_str, stack=stack)
 
 
 @cli.command()
@@ -170,36 +184,46 @@ def config(set_key):
     console.print()
     console.print(t)
     console.print()
-    console.print("[dim]  Switch provider:[/dim]")
-    console.print("[dim]    oma config --set provider ollama[/dim]")
-    console.print("[dim]    oma config --set provider openai[/dim]")
-    console.print("[dim]    oma config --set provider anthropic[/dim]")
-    console.print()
-    console.print("[dim]  Switch Ollama model:[/dim]")
-    console.print("[dim]    oma config --set model.ollama mistral[/dim]")
-    console.print("[dim]    oma config --set model.ollama gemma3[/dim]\n")
+    console.print("[dim]  oma config --set provider ollama[/dim]")
+    console.print("[dim]  oma config --set model.ollama mistral:latest[/dim]\n")
+
 
 @cli.command()
-@click.argument("project", nargs=-1, required=False)
-@click.option("--stack", "-s", default=None,
-              help="Preferred tech stack e.g. fastapi, django, flask")
-def build(project, stack):
-    """Generate full project architecture, structure, and starter code.
+@click.argument("action",
+                type=click.Choice(["list", "install", "remove", "info"]),
+                default="list")
+@click.argument("plugin_name", required=False, default=None)
+def plugin(action, plugin_name):
+    """Manage OmaAI plugins."""
+    from oma.modules.plugin_cmd import (
+        run_plugin_list,
+        run_plugin_install,
+        run_plugin_remove,
+        run_plugin_info,
+    )
+    if action == "list":
+        run_plugin_list()
+    elif action == "install":
+        if not plugin_name:
+            console.print("[red]Provide a plugin name.[/red]")
+            console.print("[dim]Example: oma plugin install docker[/dim]\n")
+            return
+        run_plugin_install(plugin_name)
+    elif action == "remove":
+        if not plugin_name:
+            console.print("[red]Provide a plugin name.[/red]")
+            return
+        run_plugin_remove(plugin_name)
+    elif action == "info":
+        if not plugin_name:
+            console.print("[red]Provide a plugin name.[/red]")
+            return
+        run_plugin_info(plugin_name)
 
-    \b
-    Examples:
-      oma build "CBT exam system"
-      oma build "REST API for a school" --stack fastapi
-      oma build "e-commerce backend"
-      oma build "Linux monitoring dashboard"
-    """
-    from oma.modules.build import run_build
-    project_str = " ".join(project) if project else ""
-    if not project_str:
-        console.print("[red]❌  Describe what you want to build.[/red]")
-        console.print('[dim]Example: oma build "CBT exam system"[/dim]')
-        return
-    run_build(project_str, stack=stack)
+
+# ── Load all installed plugins at startup ─────────────────
+from oma.plugins import load_all_plugins
+load_all_plugins(cli)
 
 
 if __name__ == "__main__":

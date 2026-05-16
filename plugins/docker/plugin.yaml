@@ -1,0 +1,16 @@
+name: docker
+version: "0.1.0"
+description: Manage Docker containers, images, volumes, and compose
+author: OmaAI
+requires:
+  - docker
+commands:
+  - ps
+  - images
+  - logs
+  - build
+  - stop
+  - remove
+  - compose
+  - stats
+  - explain
