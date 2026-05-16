@@ -34,6 +34,8 @@ def cli(ctx):
             "                        Live system dashboard\n"
             "  [magenta]oma teach[/magenta] [dim]<topic>[/dim]"
             "               Interactive Linux lessons\n"
+            "  [bold green]oma build[/bold green] [dim]<project>[/dim]"
+            "              Scaffold a full project\n"
             "  [dim]oma config[/dim]"
             "                         View and change settings\n\n"
             "[dim]  Run [bold]oma <command> --help[/bold] for details.[/dim]",
@@ -176,6 +178,28 @@ def config(set_key):
     console.print("[dim]  Switch Ollama model:[/dim]")
     console.print("[dim]    oma config --set model.ollama mistral[/dim]")
     console.print("[dim]    oma config --set model.ollama gemma3[/dim]\n")
+
+@cli.command()
+@click.argument("project", nargs=-1, required=False)
+@click.option("--stack", "-s", default=None,
+              help="Preferred tech stack e.g. fastapi, django, flask")
+def build(project, stack):
+    """Generate full project architecture, structure, and starter code.
+
+    \b
+    Examples:
+      oma build "CBT exam system"
+      oma build "REST API for a school" --stack fastapi
+      oma build "e-commerce backend"
+      oma build "Linux monitoring dashboard"
+    """
+    from oma.modules.build import run_build
+    project_str = " ".join(project) if project else ""
+    if not project_str:
+        console.print("[red]❌  Describe what you want to build.[/red]")
+        console.print('[dim]Example: oma build "CBT exam system"[/dim]')
+        return
+    run_build(project_str, stack=stack)
 
 
 if __name__ == "__main__":
