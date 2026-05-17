@@ -220,6 +220,49 @@ def plugin(action, plugin_name):
             return
         run_plugin_info(plugin_name)
 
+@cli.command()
+@click.argument("task", nargs=-1, required=False)
+@click.option("--list",   "do_list",   is_flag=True, help="List all automations")
+@click.option("--remove", "do_remove", default=None, type=int, metavar="ID")
+@click.option("--run",    "do_run",    default=None, type=int, metavar="ID")
+@click.option("--logs",   "do_logs",   default=None, type=int, metavar="ID")
+def automate(task, do_list, do_remove, do_run, do_logs):
+    """Generate and schedule automation scripts from plain English.
+
+    \b
+    Examples:
+      oma automate "backup home folder every day at 2am"
+      oma automate "check disk usage every hour"
+      oma automate "restart nginx if it goes down"
+      oma automate --list
+      oma automate --run 1
+      oma automate --logs 1
+      oma automate --remove 1
+    """
+    from oma.modules.automate import (
+        run_automate,
+        run_automate_list,
+        run_automate_remove,
+        run_automate_run,
+        run_automate_logs,
+    )
+
+    if do_list:
+        run_automate_list()
+    elif do_remove is not None:
+        run_automate_remove(do_remove)
+    elif do_run is not None:
+        run_automate_run(do_run)
+    elif do_logs is not None:
+        run_automate_logs(do_logs)
+    elif task:
+        run_automate(" ".join(task))
+    else:
+        console.print("[red]Describe a task or use --list.[/red]")
+        console.print(
+            '[dim]Example: oma automate '
+            '"backup home folder every day at 2am"[/dim]\n'
+        )
 
 # ── Load all installed plugins at startup ─────────────────
 from oma.plugins import load_all_plugins
